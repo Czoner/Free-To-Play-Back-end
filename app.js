@@ -13,6 +13,10 @@ const { requestLogger, errorLogger } = require("./middlewares/Logger");
 const { PORT = 3002 } = process.env;
 
 const app = express();
+const proxyMiddleware = createProxyMiddleware({
+    target: "https://www.freetogame.com/api",
+    changeOrigin: true,
+});
 
 app.use(limiter);
 app.use(helmet());
@@ -20,18 +24,10 @@ app.use(express.json());
 
 app.use(cors());
 app.use(requestLogger);
-app.get("/crash-test", () => {
-    setTimeout(() => {
-        throw new Error("Server will crash now");
-    }, 0);
-});
 
-const proxyMiddleware = createProxyMiddleware({
-    target: "https://www.freetogame.com/api",
-    changeOrigin: true,
-});
-app.use("/", proxyMiddleware);
+app.use("/api", proxyMiddleware);
 app.use("/", mainRouter);
+
 app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);

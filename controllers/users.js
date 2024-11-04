@@ -10,29 +10,29 @@ const { ConflictError } = require("../utils/ConflictError");
 //POST the use
 
 const creatingUser = async (req, res, next) => {
-    const { name, avatar, email, password } = req.body;
+    const { username, email, password } = req.body;
 
-    if (!{ email }) {
+    if (!email) {
         throw new BadRequestError("Email is missing or null");
     }
-    if (!{ password }) {
+    if (!password) {
         throw new BadRequestError("Password is missing or null");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    return User.create({ name, avatar, email, password: hashedPassword })
+
+    return User.create({ username, email, password: hashedPassword })
         .then((user) => {
             if (!user) {
                 throw new NotFoundError("No user with matching ID found");
             }
             res.status(201).send({
-                name: user.name,
-                avatar: user.avatar,
+                username: user.username,
                 email: user.email,
             });
         })
         .catch((err) => {
-            console.error(err);
+            console.error("Error creating user:", err);
             if (err.name === "ValidationError") {
                 next(new BadRequestError("Invalid data"));
             } else if (err.name === "MongoServerError" || err.code === 11001) {
@@ -75,7 +75,7 @@ const getCurrentUser = (req, res, next) => {
 
 const login = (req, res, next) => {
     const { email, password } = req.body;
-    if (!{ email }) {
+    if (!email) {
         throw new BadRequestError("Email is missing or null");
     }
 
