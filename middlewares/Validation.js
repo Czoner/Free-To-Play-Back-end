@@ -36,8 +36,8 @@ const UserInfoBodyValidation = celebrate({
 
 const AuthenticationBody = celebrate({
     body: Joi.object().keys({
-        email: Joi.string().required().email().messages({
-            "string.empty": "You must enter an email",
+        username: Joi.string().required().min(2).max(30).messages({
+            "string.empty": "You must enter a username",
         }),
         password: Joi.string().required().messages({
             "string.empty": "You must enter an password",

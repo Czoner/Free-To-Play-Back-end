@@ -74,16 +74,14 @@ const getCurrentUser = (req, res, next) => {
 // SIGN in for the user
 
 const login = (req, res, next) => {
-    const { email, password } = req.body;
-    if (!email) {
-        throw new BadRequestError("Email is missing or null");
+    console.log("Received login request:", req.body);
+    const { username, password } = req.body;
+    if (!username) {
+        throw new BadRequestError("Username is missing or null");
     }
 
-    return User.findUserByCredentials(email, password)
+    return User.findUserByCredentials(username, password)
         .then((user) => {
-            if (!user) {
-                throw new NotFoundError("No user with matching ID found");
-            }
             const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
                 expiresIn: "7d",
             });
@@ -92,8 +90,8 @@ const login = (req, res, next) => {
         })
         .catch((err) => {
             console.error(err);
-            if (err.message === "Incorrect email or password") {
-                next(new UnauthorizedError("Incorrect email or password"));
+            if (err.message === "Incorrect username or password") {
+                next(new UnauthorizedError("Incorrect username or password"));
             } else {
                 next(err);
             }
